@@ -64,8 +64,8 @@ OBJS= $(EMU_OBJS) $(PSP_OBJS)
 # PG=-pg
 
 DEFAULT_CFLAGS = $(shell $(SDL_CONFIG) --cflags)
-DEFAULT_CFLAGS += -I/usr/include  -I./src/ -Iinclude/ -I./pspsdk_linux
-DEFAULT_CFLAGS += -I./src/core
+DEFAULT_CFLAGS += -I/usr/include -Iinclude/
+DEFAULT_CFLAGS += -I./src/ -I./src/core -I./src/pspsdk_linux
 
 HUGO_VERSION=v1.1.0
 
