@@ -1,3 +1,4 @@
+./dingux-hugo/roms/*
 # Prerequisites
 *.d
 
@@ -50,3 +51,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+tmp~

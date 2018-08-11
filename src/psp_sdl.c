@@ -209,7 +209,6 @@ psp_sdl_back2_rectangle(int x, int y, int w, int h)
     psp_sdl_fill_rectangle(x, y, w, h, 0x0, 0);
     return;
   }
-
   ushort *vram  = (ushort *)psp_sdl_get_vram_addr(x, y);
 
   int xo, yo;
@@ -228,6 +227,7 @@ psp_sdl_put_char(int x, int y, int color, int bgcolor, uchar c, int drawfg, int 
   int b;
   int index;
 
+  y*= 2;
   ushort *vram = (ushort *)psp_sdl_get_vram_addr(x, y);
   index = ((ushort)c) * psp_font_height;
 
@@ -235,9 +235,9 @@ psp_sdl_put_char(int x, int y, int color, int bgcolor, uchar c, int drawfg, int 
     b = 1 << (psp_font_width - 1);
     for (cx=0; cx< psp_font_width; cx++) {
       if (psp_font[index] & b) {
-        if (drawfg) vram[cx + cy * PSP_LINE_SIZE] = color;
+        if (drawfg) vram[cx + cy * PSP_LINE_SIZE * 2] = color;
       } else {
-        if (drawbg) vram[cx + cy * PSP_LINE_SIZE] = bgcolor;
+        if (drawbg) vram[cx + cy * PSP_LINE_SIZE * 2] = bgcolor;
       }
       b = b >> 1;
     }
@@ -258,17 +258,17 @@ psp_sdl_back2_put_char(int x, int y, int color, uchar c)
     return;
   }
 
+  y*= 2;
   ushort *vram  = (ushort *)psp_sdl_get_vram_addr(x, y);
-
   index = ((ushort)c) * psp_font_height;
 
   for (cy=0; cy< psp_font_height; cy++) {
     bmask = 1 << (psp_font_width - 1);
     for (cx=0; cx< psp_font_width; cx++) {
       if (psp_font[index] & bmask) {
-        vram[cx + cy * PSP_LINE_SIZE] = color;
+        vram[cx + cy * PSP_LINE_SIZE * 2] = color;
       } else {
-        vram[cx + cy * PSP_LINE_SIZE] = psp_sdl_get_back2_color(x + cx, y + cy);
+        vram[cx + cy * PSP_LINE_SIZE * 2] = psp_sdl_get_back2_color(x + cx, y + cy);
       }
       bmask = bmask >> 1;
     }
@@ -358,11 +358,29 @@ void
 psp_sdl_blit_thumb(int dst_x, int dst_y, SDL_Surface* thumb_surface)
 {
   SDL_Rect dstRect;
+
+  dst_y*= 2;
   dstRect.x = dst_x;
   dstRect.y = dst_y;
   dstRect.w = thumb_surface->w;
   dstRect.h = thumb_surface->h;
   SDL_BlitSurface(thumb_surface, NULL, back_surface, &dstRect);
+}
+
+void
+psp_sdl_quick_copy(SDL_Surface *src, SDL_Surface *dst)
+{
+  int x, y;
+  uint32_t *s = src->pixels;
+  uint32_t *d = dst->pixels;
+
+  for(y=0; y<240; y++){
+    for(x=0; x<160; x++){
+      *d++ = *s++;
+    }
+    d+= 160;
+  }
+  //SDL_SoftStretch(src, NULL, dst, NULL);
 }
 
 void
@@ -392,7 +410,7 @@ psp_sdl_display_splash()
 
   int x = (320 - (strlen(HUGO_VERSION) * 8)) / 2;
   int y = 240 - 16;
-  int col = psp_sdl_rgb(0x0, 0x0, 0x0);
+  int col = psp_sdl_rgb(0xff, 0xff, 0x00);
 
   psp_sdl_blit_splash();
   psp_sdl_print(x, y, HUGO_VERSION, col);
@@ -401,7 +419,6 @@ psp_sdl_display_splash()
   psp_sdl_blit_splash();
   psp_sdl_print(x, y, HUGO_VERSION, col);
   psp_sdl_flip();
-
 
   while (index < 50) {
     gp2xCtrlPeekBufferPositive(&c, 1);
@@ -548,9 +565,12 @@ psp_sdl_load_png(SDL_Surface* my_surface, char* filename)
     PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING |
     PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR , NULL);
 
-  png_uint_32 width = png_get_image_width( png_ptr,  info_ptr); //info_ptr->width;
-  png_uint_32 height = png_get_image_height( png_ptr,  info_ptr); //info_ptr->height;
-  int color_type = png_get_color_type(png_ptr,  info_ptr); //info_ptr->color_type;
+  //png_uint_32 width = info_ptr->width;
+  //png_uint_32 height = info_ptr->height;
+  //int color_type = info_ptr->color_type;
+  png_int_32 width = png_get_image_width( png_ptr,  info_ptr);
+  png_int_32 height = png_get_image_height( png_ptr,  info_ptr);
+  int color_type = png_get_color_type( png_ptr,  info_ptr);
 
   if ((width  > w) ||
       (height > h)) {
@@ -559,8 +579,8 @@ psp_sdl_load_png(SDL_Surface* my_surface, char* filename)
     return 0;
   }
 
-  //png_byte **pRowTable = png_get_rowbytes(png_ptr, info_ptr); //info_ptr->row_pointers;
-  png_byte **pRowTable = png_get_rows(png_ptr, info_ptr); //info_ptr->row_pointers;
+  //png_byte **pRowTable = info_ptr->row_pointers;
+  png_byte **pRowTable = png_get_rows( png_ptr,  info_ptr);
   unsigned int x, y;
   u8 r, g, b;
 
@@ -664,13 +684,10 @@ psp_sdl_init(void)
 
   psp_sdl_select_font_6x10();
 
-  back_surface=SDL_SetVideoMode(PSP_SDL_SCREEN_WIDTH,PSP_SDL_SCREEN_HEIGHT, 16 , 
-                                SDL_SWSURFACE);
-
+  back_surface=SDL_SetVideoMode(PSP_SDL_SCREEN_WIDTH, PSP_SDL_SCREEN_HEIGHT, 16 , SDL_SWSURFACE);
   if ( !back_surface) {
     return 0;
   }
-
   blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
     HUGO_MAX_WIDTH, HUGO_MAX_HEIGHT,
     back_surface->format->BitsPerPixel,
