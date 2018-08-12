@@ -119,7 +119,7 @@ int scanlines_per_frame = 263;
 //int MinLine = 0,MaxLine = 255;
 //#define MAXDISP 227
 
-char cart_name[PATH_MAX] = "default.pce";
+char cart_name[PATH_MAX] = "PadTest.pce";
 // Name of the file containing the ROM
 
 char short_cart_name[PATH_MAX];

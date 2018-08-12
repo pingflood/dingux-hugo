@@ -71,7 +71,10 @@ extern "C" {
     char hugo_auto_fire_button;
     int  hugo_auto_fire_period;
 
+
   } Hugo_t;
+
+  char rom_path[MAX_PATH];
 
   extern Hugo_t HUGO;
 

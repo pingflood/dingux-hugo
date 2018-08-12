@@ -574,6 +574,28 @@ static char user_filedir_cht[GP2X_FMGR_MAX_NAME];
 static char user_filedir_cd [GP2X_FMGR_MAX_NAME];
 static char user_filedir_rom[GP2X_FMGR_MAX_NAME];
 
+int
+psp_fmgr_load_rom(const char *szFilePath)
+{
+  int file_format;
+  file_format = psp_fmgr_getExtId(szFilePath);
+
+  if (file_format == FMGR_FORMAT_ZIP) /* Rom.zip */ return hugo_load_rom(szFilePath, 1);
+  else
+  if (file_format == FMGR_FORMAT_ROM) /* Rom */ return hugo_load_rom(szFilePath, 0);
+  else
+  if (file_format == FMGR_FORMAT_CD ) /* CD  */ return hugo_load_cd(szFilePath);
+  else
+  if (file_format == FMGR_FORMAT_KBD) /* Kbd */ return psp_kbd_load_mapping(szFilePath);
+  else
+  if (file_format == FMGR_FORMAT_JOY) /* Joy */ return psp_joy_load_settings(szFilePath);
+  else
+  if (file_format == FMGR_FORMAT_SET) /* Settings */ return hugo_load_file_settings(szFilePath);
+  else
+  if (file_format == FMGR_FORMAT_CHT) /* Cheat */ return hugo_load_file_cheat(szFilePath);
+}
+
+
 int 
 psp_fmgr_menu(int format)
 {
@@ -582,7 +604,6 @@ psp_fmgr_menu(int format)
   char *user_filedir;
   char user_filename[GP2X_FMGR_MAX_NAME];
   struct stat       aStat;
-  int               file_format;
   int               error;
   int               ret;
 
@@ -621,29 +642,7 @@ psp_fmgr_menu(int format)
   if (psp_file_request(user_filename, user_filedir)) {
     error = 0;
     if (stat(user_filename, &aStat)) error = 1;
-    else 
-    {
-      file_format = psp_fmgr_getExtId(user_filename);
-
-      if (file_format == FMGR_FORMAT_ZIP) {
-
-        if (user_file_format == FMGR_FORMAT_ROM) /* Rom */ error = hugo_load_rom(user_filename, 1);
-      }
-      else 
-      {
-        if (file_format == FMGR_FORMAT_ROM) /* Rom */ error = hugo_load_rom(user_filename, 0);
-        else
-        if (file_format == FMGR_FORMAT_CD ) /* CD  */ error = hugo_load_cd(user_filename);
-        else
-        if (file_format == FMGR_FORMAT_KBD) /* Kbd */  error = psp_kbd_load_mapping(user_filename);
-        else
-        if (file_format == FMGR_FORMAT_JOY) /* Joy */  error = psp_joy_load_settings(user_filename);
-        else
-        if (file_format == FMGR_FORMAT_SET) /* Settings */  error = hugo_load_file_settings(user_filename);
-        else
-        if (file_format == FMGR_FORMAT_CHT) /* Cheat */  error = hugo_load_file_cheat(user_filename);
-      }
-    }
+    else error = psp_fmgr_load_rom(user_filename);
 
     if (error) ret = -1;
     else       ret =  1;

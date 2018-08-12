@@ -35,8 +35,9 @@ extern "C" {
 # define FMGR_FORMAT_ZIP   6
 # define FMGR_FORMAT_SET   7
 
-  extern int psp_fmgr_menu(int format);
-  extern int psp_fmgr_getExtId(const char *szFilePath);
+extern int psp_fmgr_menu(int format);
+extern int psp_fmgr_getExtId(const char *szFilePath);
+extern int psp_fmgr_load_rom(const char *szFilePath);
 
 #ifdef __cplusplus
 }

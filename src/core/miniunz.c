@@ -237,7 +237,7 @@ do_extract_onefile_in_memory (unzFile uf, const char *filename,
  * @return NULL in case of problem or a pointer to the archived file content. It is allocated
  * dynamically and needs to be explicitely freed
  */
-extern char *
+extern unsigned char *
 extract_file_in_memory (char *zipfilename, char *archivedfile, size_t * unzipped_size)
 {
   unzFile uf;

@@ -1205,6 +1205,9 @@ SDL_main(int argc,char **argv)
 {
   psp_global_initialize();
 
+  if (argc > 1) strcpy(rom_path, argv[1]);
+  else  strcpy(rom_path, "PadTest.pce");
+
   main_hugo(argc, argv);
 
   return(0);

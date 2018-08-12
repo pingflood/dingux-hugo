@@ -782,7 +782,8 @@ psp_update_keys(void)
     gp2xCtrlPeekBufferPositive(&loc_button_data, 1);
     loc_button_data.Buttons &= PSP_ALL_BUTTON_MASK;
 
-    psp_main_menu();
+    // psp_main_menu();
+    psp_fmgr_load_rom(rom_path);
     psp_init_keyboard();
 
     return 0;

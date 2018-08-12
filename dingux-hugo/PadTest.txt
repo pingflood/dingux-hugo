@@ -1,0 +1,12 @@
+PC-Engine Pad Test
+------------------
+By Chris Covell
+---------------
+
+Does what it says on the tin.  Run this on your PCE/Turbografx on a flash card, attach a regular joypad or 6-button Avenue pad, and press any of the buttons to see a lit button onscreen, with a sound for confirmation.
+
+
+Contact/Legal
+-------------
+Chris Covell (chris_covell -at- yahoo.ca)
+Web: http://www.chrismcovell.com/

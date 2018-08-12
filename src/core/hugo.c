@@ -5,6 +5,8 @@
 #include "di/di.h"
 #endif
 
+#include "psp_fmgr.h"
+
 struct host_machine host;
 struct hugo_options option;
 
