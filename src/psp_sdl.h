@@ -28,7 +28,7 @@ extern "C" {
 # define PSP_LINE_SIZE  320
 
 # define PSP_SDL_SCREEN_WIDTH    320
-# define PSP_SDL_SCREEN_HEIGHT   480
+# define PSP_SDL_SCREEN_HEIGHT   240
 
   typedef unsigned char   uchar;
   typedef unsigned int    uint;

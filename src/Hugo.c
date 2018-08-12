@@ -79,7 +79,7 @@ loc_put_image_fit()
   srcRect.y = 0;
 
   dstRect.w = 320;
-  dstRect.h = 480;
+  dstRect.h = 240;
   dstRect.x = 0;
   dstRect.y = 0;
 
@@ -135,7 +135,7 @@ loc_put_image_stretch_fast()
       step -= 2;
       if (step <= 0) { src++; step += step_max; }
     }
-    tgt += 160; // fix for retrogame
+    // tgt += 160; // fix for retrogame
     src = start_src + HUGO_MAX_WIDTH;
   }
 }
@@ -171,7 +171,7 @@ loc_put_image_fast()
         v |= osd_pal[ *src++ ] << 16;
         *tgt++ = v;
       }
-      tgt += 160; // fix for retrogame
+      // tgt += 160; // fix for retrogame
       tgt += (320 - screen_w) / 2;
       src += (HUGO_MAX_WIDTH - screen_w);
     }
@@ -232,7 +232,7 @@ loc_put_image_fast_max()
     }
     while (screen_h-- > 0) {
       int w = screen_w / 4;
-      u16 *tgt_next = tgt + 320 + 320; // fix for retrogame
+      u16 *tgt_next = tgt + 320; // + 320; // fix for retrogame
       while (w-- > 0) {
         loc_blend_15( tgt, src );
         tgt += 5; src += 4;
