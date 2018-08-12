@@ -1182,7 +1182,7 @@ void
 psp_global_initialize()
 {
   memset(&HUGO, 0, sizeof(Hugo_t));
-  strcpy(HUGO.hugo_home_dir,"/mnt/game/hugo");
+  strcpy(HUGO.hugo_home_dir,".");
   hugo_default_settings();
   psp_joy_default_settings();
   psp_kbd_default_settings();
