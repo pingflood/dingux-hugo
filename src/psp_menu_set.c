@@ -81,7 +81,7 @@ enum {
 
   static int cur_menu_id = MENU_SET_BACK;
 
-  static int hugo_snd_enable     = 0;
+  static int hugo_snd_enable     = 1;
   static int hugo_snd_volume     = 0;
   static int hugo_snd_freq       = 1;
   static int hugo_overclock      = 0;
