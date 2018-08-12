@@ -968,9 +968,9 @@ hugo_apply_cheats()
 void
 hugo_audio_pause(void)
 {
-  if (HUGO.hugo_snd_enable) {
+  // if (HUGO.hugo_snd_enable) {
     SDL_PauseAudio(1);
-  }
+  // }
 }
 
 void

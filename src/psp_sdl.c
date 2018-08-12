@@ -363,8 +363,6 @@ void
 psp_sdl_blit_thumb(int dst_x, int dst_y, SDL_Surface* thumb_surface)
 {
   SDL_Rect dstRect;
-
-  // dst_y*= 2;
   dstRect.x = dst_x;
   dstRect.y = dst_y;
   dstRect.w = thumb_surface->w;
@@ -650,26 +648,21 @@ psp_sdl_save_screenshot_png(char *filename)
 int
 psp_sdl_save_thumb_png(SDL_Surface* my_surface, char* filename)
 {
-  /* First dump blit_surface to my_surface */
-  SDL_SoftStretch(blit_surface, NULL, my_surface, NULL);
+  int x;
+  int y;
+  u16* src_pixel = (u16*)blit_surface->pixels;
+  u16* dst_pixel = (u16*)my_surface->pixels;
+
+  hugo_save_blit_image();
+
+  for (y = 0; y < (SNAP_HEIGHT*2); y += 2) {
+    for (x = 0; x < (SNAP_WIDTH*2); x += 2) {
+      *dst_pixel++ = src_pixel[x];
+    }
+    src_pixel += (HUGO_MAX_WIDTH * 2);
+  }
   /* Then save thumb in file */
   return psp_sdl_save_png(my_surface, filename);
-
-  // int x;
-  // int y;
-  // u16* src_pixel = (u16*)blit_surface->pixels;
-  // u16* dst_pixel = (u16*)my_surface->pixels;
-
-  // hugo_save_blit_image();
-
-  // for (y = 0; y < (SNAP_HEIGHT*2); y += 2) {
-  //   for (x = 0; x < (SNAP_WIDTH*2); x += 2) {
-  //     *dst_pixel++ = src_pixel[x];
-  //   }
-  //   src_pixel += (HUGO_MAX_WIDTH * 2);
-  // }
-  // /* Then save thumb in file */
-  // return psp_sdl_save_png(my_surface, filename);
 }
 
 int

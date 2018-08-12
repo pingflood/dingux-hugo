@@ -142,8 +142,6 @@ psp_display_screen_menu(void)
 
     psp_sdl_back2_print(x, y, menu_list[menu_id].title, color);
 
-
-
     switch (menu_id) {
         case MENU_SCREENSHOT:
             sprintf(buffer,": %d", HUGO.psp_screenshot_id);
@@ -160,9 +158,6 @@ psp_display_screen_menu(void)
   y      = 50; /* dc 20130702 */
   x_step = 30; /* dc 20130702 */
   x      = 142; /* dc 20130702 */
-
-
-
 
   for (slot_id = 0; slot_id < HUGO_MAX_SAVE_STATE; slot_id++) {
     if (slot_id == cur_slot) {
@@ -189,8 +184,9 @@ psp_display_screen_menu(void)
   y += 1.5*y_step;
   x = 140;
 
-  psp_sdl_blit_thumb(x, y, HUGO.hugo_save_state[cur_slot].surface);
-
+  if (HUGO.hugo_save_state[cur_slot].thumb) {
+    psp_sdl_blit_thumb(x, y, HUGO.hugo_save_state[cur_slot].surface);
+  }
   psp_menu_display_save_name();
 }
 
