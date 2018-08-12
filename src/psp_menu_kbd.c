@@ -38,32 +38,31 @@
 #include "psp_menu_kbd.h"
 #include "psp_danzeff.h"
 
-# define MENU_KBD_SKIN       0
-# define MENU_KBD_KBD_SELECT 1
-# define MENU_KBD_UP         2
-# define MENU_KBD_DOWN       3
-# define MENU_KBD_LEFT       4
-# define MENU_KBD_RIGHT      5
-# define MENU_KBD_CROSS      6
-# define MENU_KBD_SQUARE     7
-# define MENU_KBD_TRIANGLE   8
-# define MENU_KBD_CIRCLE     9
-# define MENU_KBD_LTRIGGER  10
-# define MENU_KBD_RTRIGGER  11
-# define MENU_KBD_FIRE      12
-# define MENU_KBD_JOY_UP    13
-# define MENU_KBD_JOY_DOWN  14
-# define MENU_KBD_JOY_LEFT  15
-# define MENU_KBD_JOY_RIGHT 16
-
-# define MENU_KBD_LOAD      17
-# define MENU_KBD_SAVE      18
-# define MENU_KBD_HOTKEYS   19
-# define MENU_KBD_RESET     20
-
-# define MENU_KBD_BACK      21
-
-# define MAX_MENU_KBD_ITEM (MENU_KBD_BACK + 1)
+enum {
+  MENU_KBD_SKIN,
+  MENU_KBD_KBD_SELECT,
+  MENU_KBD_UP,
+  MENU_KBD_DOWN,
+  MENU_KBD_LEFT,
+  MENU_KBD_RIGHT,
+  MENU_KBD_CROSS,
+  MENU_KBD_SQUARE,
+  MENU_KBD_TRIANGLE,
+  MENU_KBD_CIRCLE,
+  MENU_KBD_LTRIGGER,
+  MENU_KBD_RTRIGGER,
+  MENU_KBD_FIRE,
+  MENU_KBD_JOY_UP,
+  MENU_KBD_JOY_DOWN,
+  MENU_KBD_JOY_LEFT,
+  MENU_KBD_JOY_RIGHT,
+  MENU_KBD_LOAD,
+  MENU_KBD_SAVE,
+  MENU_KBD_HOTKEYS,
+  MENU_KBD_RESET,
+  MENU_KBD_BACK,
+  MAX_MENU_KBD_ITEM
+};
 
   static menu_item_t menu_list[] =
   { 
@@ -97,10 +96,11 @@
    { "Save Keyboard" },
    { "Set Hotkeys" },
    { "Reset Keyboard" },
+
    { "Back to Menu" }
   };
 
-  static int cur_menu_id = MENU_KBD_LOAD;
+  static int cur_menu_id = MENU_KBD_BACK;
 
   static int loc_kbd_mapping[ KBD_ALL_BUTTONS ];
   static int loc_kbd_mapping_L[ KBD_ALL_BUTTONS ];
@@ -156,8 +156,8 @@ psp_display_screen_kbd_menu(void)
   for (menu_id = 0; menu_id < MAX_MENU_KBD_ITEM; menu_id++) 
   {
     if (cur_menu_id == menu_id) color = PSP_MENU_SEL_COLOR;
-    else 
-    if (menu_id == MENU_KBD_KBD_SELECT) color = PSP_MENU_NOTE_COLOR;
+    // else 
+    // if (menu_id == MENU_KBD_KBD_SELECT) color = PSP_MENU_NOTE_COLOR;
     else                                color = PSP_MENU_TEXT_COLOR;
 
     psp_sdl_back2_print(x, y, menu_list[menu_id].title, color);
@@ -208,14 +208,14 @@ psp_display_screen_kbd_menu(void)
       string_fill_with_space(buffer, 12);
       psp_sdl_back2_print(80, y, buffer, color);
 
-      if (menu_id == MENU_KBD_JOY_RIGHT) {
+      if (menu_id == MENU_KBD_JOY_RIGHT || menu_id == MENU_KBD_JOY_RIGHT) {
         y += y_step;
       }
     }
     y += y_step;
   }
 
-  psp_menu_display_save_name();
+  // psp_menu_display_save_name();
 }
 
 static void
@@ -469,19 +469,11 @@ psp_keyboard_menu(void)
       psp_keyboard_select_change(+1);
       psp_kbd_wait_no_button();
     } else
-    if ((new_pad == GP2X_CTRL_LEFT ) || 
-        (new_pad == GP2X_CTRL_RIGHT) ||
-        (new_pad == GP2X_CTRL_CROSS) || 
-        (new_pad == GP2X_CTRL_CIRCLE))
+    if ((new_pad == GP2X_CTRL_LEFT ) || (new_pad == GP2X_CTRL_RIGHT))
     {
-      int step = 0;
+      int step = -1;
 
-      if (new_pad & GP2X_CTRL_RIGHT) {
-        step = 1;
-      } else
-      if (new_pad & GP2X_CTRL_LEFT) {
-        step = -1;
-      }
+      if (new_pad & GP2X_CTRL_RIGHT) step = 1;
 
       if ((cur_menu_id >= MENU_KBD_UP       ) && 
           (cur_menu_id <= MENU_KBD_JOY_RIGHT)) 
@@ -497,6 +489,14 @@ psp_keyboard_menu(void)
           break;
           case MENU_KBD_KBD_SELECT  : psp_keyboard_select_change(step);
           break;
+        }
+      }
+
+    } else
+    if (new_pad == GP2X_CTRL_CIRCLE)
+    {
+        switch (cur_menu_id ) 
+        {
           case MENU_KBD_LOAD  : psp_keyboard_menu_load();
                                 old_pad = new_pad = 0;
                                 menu_kbd_selected = -1;
@@ -511,7 +511,6 @@ psp_keyboard_menu(void)
           case MENU_KBD_BACK  : end_menu = 1;
           break;
         }
-      }
 
     } else
     if(new_pad & GP2X_CTRL_UP) {
@@ -530,7 +529,7 @@ psp_keyboard_menu(void)
       /* Cancel */
       end_menu = -1;
     } else 
-    if(new_pad & GP2X_CTRL_SELECT) {
+    if((new_pad & GP2X_CTRL_CROSS) || (new_pad & GP2X_CTRL_SELECT)) {
       /* Back to Main Menu */
       end_menu = 1;
     } else

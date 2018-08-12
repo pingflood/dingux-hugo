@@ -41,44 +41,45 @@
 
 extern SDL_Surface *back_surface;
 
-# define MENU_SET_SOUND         0
-# define MENU_SET_VOLUME        1
-# define MENU_SET_FREQ          2
-# define MENU_SET_SPEED_LIMIT   3
-# define MENU_SET_SKIP_FPS      4
-# define MENU_SET_OVERCLOCK     5
-# define MENU_SET_VIEW_FPS      6
-# define MENU_SET_RENDER        7
-# define MENU_SET_VSYNC         8
-# define MENU_SET_CLOCK        9
-
-# define MENU_SET_LOAD         10
-# define MENU_SET_SAVE         11
-# define MENU_SET_RESET        12
-# define MENU_SET_BACK         13
-
-# define MAX_MENU_SET_ITEM (MENU_SET_BACK + 1)
-
+enum {
+  MENU_SET_RENDER,
+  MENU_SET_SKIP_FPS,
+  MENU_SET_VIEW_FPS,
+  MENU_SET_SPEED_LIMIT,
+  MENU_SET_VSYNC,
+  MENU_SET_SOUND,
+  MENU_SET_VOLUME,
+  MENU_SET_FREQ,
+  // MENU_SET_OVERCLOCK,
+  // MENU_SET_CLOCK,
+  MENU_SET_LOAD,
+  MENU_SET_SAVE,
+  MENU_SET_RESET,
+  MENU_SET_BACK,
+  MAX_MENU_SET_ITEM
+};
   static menu_item_t menu_list[] =
   {
+    { "Render mode         :"},
+    { "Skip frame          :"},
+    { "Display fps         :"},
+    { "Speed limiter       :"},
+    { "Vsync               :"},
+
     { "Sound enable        :"},
     { "Sound volume boost  :"},
     { "Sound frequency     :"},
-    { "Speed limiter       :"},
-    { "Skip frame          :"},
-    { "Overclock           :"},
-    { "Display fps         :"},
-    { "Render mode         :"},
-    { "Vsync               :"},
-    { "Clock frequency     :"},
+    // { "Overclock           :"},
+    // { "Clock frequency     :"},
 
     { "Load settings"        },
     { "Save settings"        },
     { "Reset settings"       },
+
     { "Back to Menu"         }
   };
 
-  static int cur_menu_id = MENU_SET_LOAD;
+  static int cur_menu_id = MENU_SET_BACK;
 
   static int hugo_snd_enable     = 0;
   static int hugo_snd_volume     = 0;
@@ -105,7 +106,7 @@ psp_display_screen_settings_menu(void)
   psp_sdl_blit_help();
   
   x      = 10;
-  y      =  5;
+  y      = 20;
   y_step = 10;
   
   for (menu_id = 0; menu_id < MAX_MENU_SET_ITEM; menu_id++) {
@@ -142,11 +143,11 @@ psp_display_screen_settings_menu(void)
       string_fill_with_space(buffer, 4);
       psp_sdl_back2_print(140, y, buffer, color);
     } else
-    if (menu_id == MENU_SET_OVERCLOCK) {
-      sprintf(buffer,"%d", hugo_overclock);
-      string_fill_with_space(buffer, 7);
-      psp_sdl_back2_print(140, y, buffer, color);
-    } else
+    // if (menu_id == MENU_SET_OVERCLOCK) {
+    //   sprintf(buffer,"%d", hugo_overclock);
+    //   string_fill_with_space(buffer, 7);
+    //   psp_sdl_back2_print(140, y, buffer, color);
+    // } else
     if (menu_id == MENU_SET_SKIP_FPS) {
       sprintf(buffer,"%d", hugo_skip_fps);
       string_fill_with_space(buffer, 4);
@@ -173,15 +174,20 @@ psp_display_screen_settings_menu(void)
 
       string_fill_with_space(buffer, 13);
       psp_sdl_back2_print(140, y, buffer, color);
-    } else
-    if (menu_id == MENU_SET_CLOCK) {
-      sprintf(buffer,"%d", psp_cpu_clock);
-      string_fill_with_space(buffer, 4);
-      psp_sdl_back2_print(140, y, buffer, color);
-      y += y_step;
-    } else
-    if (menu_id == MENU_SET_RESET) {
-      y += y_step;
+    }
+    // if (menu_id == MENU_SET_CLOCK) {
+    //   sprintf(buffer,"%d", psp_cpu_clock);
+    //   string_fill_with_space(buffer, 4);
+    //   psp_sdl_back2_print(140, y, buffer, color);
+    //   y += y_step;
+    // } else
+
+    switch (menu_id) {
+        case MENU_SET_VSYNC:
+        case MENU_SET_RESET:
+        case MENU_SET_FREQ:
+          y += y_step;
+          break;
     }
 
     y += y_step;
@@ -416,19 +422,11 @@ psp_settings_menu(void)
       psp_settings_menu_reset();
       end_menu = 1;
     } else
-    if ((new_pad == GP2X_CTRL_LEFT ) || 
-        (new_pad == GP2X_CTRL_RIGHT) ||
-        (new_pad == GP2X_CTRL_CROSS) || 
-        (new_pad == GP2X_CTRL_CIRCLE))
+    if ((new_pad == GP2X_CTRL_LEFT ) || (new_pad == GP2X_CTRL_RIGHT))
     {
-      int step = 0;
+      int step = -1;
 
-      if (new_pad & GP2X_CTRL_RIGHT) {
-        step = 1;
-      } else
-      if (new_pad & GP2X_CTRL_LEFT) {
-        step = -1;
-      }
+      if (new_pad & GP2X_CTRL_RIGHT) step = 1;
 
       switch (cur_menu_id ) 
       {
@@ -438,8 +436,8 @@ psp_settings_menu(void)
         break;              
         case MENU_SET_FREQ       : psp_settings_menu_freq( step );
         break;              
-        case MENU_SET_OVERCLOCK  : psp_settings_menu_overclock( step );
-        break;              
+        // case MENU_SET_OVERCLOCK  : psp_settings_menu_overclock( step );
+        // break;              
         case MENU_SET_SPEED_LIMIT : psp_settings_menu_limiter( step );
         break;              
         case MENU_SET_SKIP_FPS   : psp_settings_menu_skip_fps( step );
@@ -450,8 +448,15 @@ psp_settings_menu(void)
         break;              
         case MENU_SET_VSYNC      : hugo_vsync = ! hugo_vsync;
         break;              
-        case MENU_SET_CLOCK      : psp_settings_menu_clock( step );
-        break;
+        // case MENU_SET_CLOCK      : psp_settings_menu_clock( step );
+        // break;
+      }
+
+    } else
+    if (new_pad == GP2X_CTRL_CIRCLE)
+    {
+      switch (cur_menu_id ) 
+      {
         case MENU_SET_LOAD       : psp_settings_menu_load(FMGR_FORMAT_SET);
                                    old_pad = new_pad = 0;
         break;              
@@ -482,7 +487,7 @@ psp_settings_menu(void)
       /* Cancel */
       end_menu = -1;
     } else 
-    if(new_pad & GP2X_CTRL_SELECT) {
+    if((new_pad & GP2X_CTRL_CROSS) || (new_pad & GP2X_CTRL_SELECT)) {
       /* Back to ATARI */
       end_menu = 1;
     }

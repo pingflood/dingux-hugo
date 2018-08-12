@@ -122,6 +122,10 @@ psp_sdl_black_screen()
   SDL_Flip(back_surface);
   SDL_FillRect(back_surface,NULL,SDL_MapRGB(back_surface->format,0x0,0x0,0x0));
   SDL_Flip(back_surface);
+  SDL_FillRect(rs97_surface,NULL,SDL_MapRGB(rs97_surface->format,0x0,0x0,0x0));
+  SDL_Flip(rs97_surface);
+  SDL_FillRect(rs97_surface,NULL,SDL_MapRGB(rs97_surface->format,0x0,0x0,0x0));
+  SDL_Flip(rs97_surface);
 }
 
 void
@@ -396,11 +400,12 @@ psp_sdl_blit_splash()
 void
 psp_sdl_blit_help()
 {
-  if (! help_surface) {
-    help_surface = IMG_Load("./help.png");
-  }
-  back2_surface = help_surface;
-	SDL_BlitSurface(back2_surface, NULL, back_surface, NULL);
+  psp_sdl_blit_background();
+ //  if (! help_surface) {
+ //    help_surface = IMG_Load("./help.png");
+ //  }
+ //  back2_surface = help_surface;
+	// SDL_BlitSurface(back2_surface, NULL, back_surface, NULL);
 }
 
 void
@@ -417,15 +422,15 @@ psp_sdl_display_splash()
   psp_sdl_print(x, y, HUGO_VERSION, col);
   psp_sdl_flip();
 
-  psp_sdl_blit_splash();
-  psp_sdl_print(x, y, HUGO_VERSION, col);
-  psp_sdl_flip();
+  // psp_sdl_blit_splash();
+  // psp_sdl_print(x, y, HUGO_VERSION, col);
+  // psp_sdl_flip();
 
-  while (index < 50) {
-    gp2xCtrlPeekBufferPositive(&c, 1);
-    if (c.Buttons & (GP2X_CTRL_START|GP2X_CTRL_CROSS)) break;
-    index++;
-  }
+  // while (index < 50) {
+  //   gp2xCtrlPeekBufferPositive(&c, 1);
+  //   if (c.Buttons & (GP2X_CTRL_START|GP2X_CTRL_CROSS)) break;
+  //   index++;
+  // }
 }
 
 void
@@ -437,12 +442,16 @@ psp_sdl_unlock(void)
 void
 psp_sdl_flip(void)
 {
+#ifdef DINGUX_MODE:
   // if(SDL_MUSTLOCK(rs97_surface)) SDL_LockSurface(rs97_surface);
   uint32_t *s = (uint32_t*)back_surface->pixels;
   uint32_t *d = (uint32_t*)rs97_surface->pixels;
   for(uint8_t y = 0; y < 240; y++, s += 160, d += 320) memmove(d, s, 1280); // double-line fix by pingflood, 2018
   // if(SDL_MUSTLOCK(rs97_surface)) SDL_UnlockSurface(rs97_surface);
   SDL_Flip(rs97_surface);
+#else
+  SDL_Flip(back_surface);
+#endif
 }
 
 #define  systemRedShift      (back_surface->format->Rshift)
@@ -695,8 +704,12 @@ psp_sdl_init(void)
 
   psp_sdl_select_font_6x10();
 
+#ifdef DINGUX_MODE:
   rs97_surface = SDL_SetVideoMode(320, 480, 16, SDL_HWSURFACE);
   back_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, PSP_SDL_SCREEN_WIDTH, PSP_SDL_SCREEN_HEIGHT, 16, 0, 0, 0, 0);
+#else
+  back_surface = SDL_SetVideoMode(320, 240, 16, SDL_HWSURFACE);
+#endif
 
   if ( !back_surface) {
     return 0;
