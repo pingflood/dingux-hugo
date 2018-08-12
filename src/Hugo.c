@@ -85,18 +85,35 @@ loc_put_image_fit()
 
   SDL_SoftStretch( blit_surface, &srcRect, back_surface, &dstRect );
 #else
-	// will crash
-  // for retrogame device
-	int x, y;
-  uint32_t *src = blit_surface->pixels;
-  uint32_t *dst = back_surface->pixels;
+  hugo_save_blit_image();
+  int x_d, x_s;
+  int y_s;
+  int y;
+  short *ptr_dst = back_surface->pixels + (PSP_SDL_SCREEN_HEIGHT - io.screen_h) * 320;
+  short *ptr_src = blit_surface->pixels;
 
-  for(y=0; y<240; y++){
-    for(x=0; x<160; x++){
-      *dst++ = *src++;
+  for (y = 0; y < io.screen_h; y++) {
+    for (x_d = 0; x_d < 320; x_d++) {
+      x_s = 16 + (((x_d << 1) + x_d) >> 2);
+      ptr_dst[x_d] = ptr_src[x_s];
     }
-    dst+= 160;
+    ptr_src += io.screen_w;
+    ptr_dst += 320;
   }
+
+
+	// // will crash
+ //  // for retrogame device
+	// int x, y;
+ //  uint32_t *src = blit_surface->pixels;
+ //  uint32_t *dst = back_surface->pixels;
+
+ //  for(y=0; y<240; y++){
+ //    for(x=0; x<160; x++){
+ //      *dst++ = *src++;
+ //    }
+ //    dst+= 160;
+ //  }
 #endif
 }
 
@@ -295,11 +312,9 @@ hugo_render_update()
 
     HUGO.psp_skip_cur_frame = HUGO.psp_skip_max_frame;
 
-    if (HUGO.hugo_render_mode == HUGO_RENDER_FAST    ) loc_put_image_fast();
-    else
-    if (HUGO.hugo_render_mode == HUGO_RENDER_FAST_MAX) loc_put_image_fast_max();
-    else
     if (HUGO.hugo_render_mode == HUGO_RENDER_FIT     ) loc_put_image_fit();
+    else if (HUGO.hugo_render_mode == HUGO_RENDER_FAST_MAX) loc_put_image_fast_max();
+    else /*if (HUGO.hugo_render_mode == HUGO_RENDER_FAST    ) */ loc_put_image_fast();
 
     hugo_synchronize();
 

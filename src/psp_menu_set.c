@@ -166,11 +166,9 @@ psp_display_screen_settings_menu(void)
       psp_sdl_back2_print(140, y, buffer, color);
     } else
     if (menu_id == MENU_SET_RENDER) {
-
-      if (hugo_render_mode == HUGO_RENDER_FAST    ) strcpy(buffer , "fast");
-      else
-      if (hugo_render_mode == HUGO_RENDER_FAST_MAX) strcpy(buffer , "fast max");
-      else                                          strcpy(buffer,  "fit");
+      if (hugo_render_mode == HUGO_RENDER_FIT) strcpy(buffer,  "full");
+      else if (hugo_render_mode == HUGO_RENDER_FAST_MAX) strcpy(buffer , "fast");
+      else /*if (hugo_render_mode == HUGO_RENDER_FAST    ) */ strcpy(buffer , "normal");
 
       string_fill_with_space(buffer, 13);
       psp_sdl_back2_print(140, y, buffer, color);
@@ -212,13 +210,14 @@ static void
 psp_settings_menu_render(int step)
 {
   if (step > 0) {
-    if (hugo_render_mode < HUGO_LAST_RENDER) hugo_render_mode++;
-    else                                 hugo_render_mode = 0;
+    hugo_render_mode++;
+    if (hugo_render_mode >= HUGO_LAST_RENDER) hugo_render_mode = 0;
   } else {
-    if (hugo_render_mode > 0) hugo_render_mode--;
-    else                    hugo_render_mode = HUGO_LAST_RENDER;
+    hugo_render_mode--;
+    if (hugo_render_mode < 0) hugo_render_mode = HUGO_LAST_RENDER - 1;
   }
 }
+
 
 static void
 psp_settings_menu_skip_fps(int step)

@@ -6,10 +6,12 @@ extern "C" {
 # endif
 
 //LUDO:
-# define HUGO_RENDER_FAST     0
-# define HUGO_RENDER_FAST_MAX 1
-# define HUGO_RENDER_FIT      2
-# define HUGO_LAST_RENDER     2
+enum {
+  HUGO_RENDER_FAST,
+  HUGO_RENDER_FAST_MAX,
+  HUGO_RENDER_FIT,
+  HUGO_LAST_RENDER
+};
 
 # define MAX_PATH             256
 # define HUGO_MAX_SAVE_STATE    5
